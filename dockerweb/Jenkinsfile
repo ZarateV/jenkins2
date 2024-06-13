@@ -1,3 +1,4 @@
+
 pipeline {
     agent {
         docker {
@@ -16,30 +17,31 @@ pipeline {
     }
     stages {
         stage('stop/rm') {
-            when {
+            when{
                 expression {
-                    def DOCKER_EXIST = sh(returnStdout: true, script: "docker ps -q --filter name=${name_final}").trim()
+                    DOCKER_EXIST = sh(returnStdout: true, script: 'echo "$(docker ps -q --filter name=${name_final})')
                     return DOCKER_EXIST != ''
                 }
             }
             steps {
                 script {
-                    sh "docker stop ${name_final}"
-                    sh "docker rm ${name_final}"
+                    sh '''
+                        docker stop $(name_final)
+                       '''
                 }
             }
         }
         stage('build') {
             steps {
                 script {
-                    sh "docker build . -t ${name_imagen}:${tag_imagen}"
+                    sh 'docker build . -t ${name_imagen}:${tag_imagen}'
                 }
             }
         }
         stage('run') {
             steps {
                 script {
-                    sh "docker run -dtp ${puerto_imagen}:80 --name ${name_final} ${name_imagen}:${tag_imagen}"
+                    sh 'docker run -dtp ${puerto_imagen}:80 --name ${name_final} ${name_imagen}:${tag_imagen}'
                 }
             }
         }
